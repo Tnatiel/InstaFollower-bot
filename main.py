@@ -1,4 +1,3 @@
-from cradentials import USERNAME, PASSWORD
 from selenium.common import ElementClickInterceptedException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium import webdriver
@@ -105,8 +104,9 @@ class InstaFollower:
         logger.info(f"follow >>> Done following")
 
 
-SIMILAR_ACCOUNT = "memes"
-"ABC!@#123"
+USERNAME = 'Your username'
+PASSWORD = 'Your password'
+SIMILAR_ACCOUNT = "Similar to your page"
 
 inf = InstaFollower()
 inf.login(USERNAME, PASSWORD)
