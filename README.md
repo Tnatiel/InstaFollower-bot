@@ -6,7 +6,7 @@
 
 
 This is a script written in python to automate following on instagram users with similar interests.
-Very recommended for starter business to grow their follower croud
+Very recommended for starter business to grow their follower crowd
 
 
 ## Prerequisites
