@@ -115,9 +115,9 @@ class InstaFollower:
         logger.info(f"follow >>> Done following")
 
 
-USERNAME = 'Your user name'
-PASSWORD = 'Your password'
-SIMILAR_ACCOUNT = "Page similar to yours"
+USERNAME = 'sagolmelafefon'
+PASSWORD = 'N*t13!217'
+SIMILAR_ACCOUNT = "memes"
 
 inf = InstaFollower()
 inf.login(USERNAME, PASSWORD)

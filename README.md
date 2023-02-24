@@ -30,7 +30,7 @@ Before you can use InstaFollower Bot, you'll need to have the following installe
 5. Run the script using `python main.py`.
 6. The script will log in to your Instagram account, navigate to the Instagram page 
 of the specified user, and follow their followers automatically.
-7. In case instagram suspects the bot, it will the 5 minutes break and continue following
+7. In case instagram suspects the bot, it will take a break for 5 minutes and then continue following
 
 ## Contributing
 
