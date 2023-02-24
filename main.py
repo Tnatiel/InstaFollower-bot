@@ -1,10 +1,11 @@
+import random
 from selenium.common import ElementClickInterceptedException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support.expected_conditions import element_to_be_clickable
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import logging
 
@@ -23,20 +24,21 @@ class InstaFollower:
         self.driver = webdriver.Chrome(service=self.service)
         self.driver.get("https://www.instagram.com/accounts/login/")
         self.driver.maximize_window()
-        time.sleep(3)
+        self.wait = WebDriverWait(self.driver, 30)
 
     def login(self, username: str, password: str):
         """
         Connect the user to instagram
         :param username: str
         :param password: str
-        :return: void
         """
+        self.wait.until(EC.presence_of_element_located((By.NAME, "username")))
         logger.info(f"login >>> Username: {username}, password: {password}")
         user_input = self.driver.find_element(By.NAME, "username")
         password_input = self.driver.find_element(By.NAME, "password")
         submit_btn = self.driver.find_element(By.CSS_SELECTOR, "#loginForm > div > div:nth-child(3) > button")
         user_input.send_keys(username)
+        time.sleep(1)
         password_input.send_keys(password)
         submit_btn.click()
 
@@ -46,54 +48,63 @@ class InstaFollower:
         :param username: str
         :return: void
         """
-        time.sleep(4)
+        search_btn_locator = "/html/body/div[2]/div/div/div/div[1]/div/div/div/" \
+                             "div[1]/div[1]/div[1]/div/div/div/div/div[2]/div[2]/div/a/div"
+        search_input_locator = "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/" \
+                               "div[1]/div[1]/div/div/div[2]/div/div/div[2]/div[1]/div/input"
+        search_result_locator = "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/" \
+                                "div[1]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/a/div"
+
+        self.wait.until(
+            EC.presence_of_element_located((By.XPATH, search_btn_locator)))
         logger.info(f"find_followers >>> click search btn")
-        search_btn = self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]"
-                                                        "/div[1]/div/div/div/div/div[2]/div[2]/div/a/div")
+        search_btn = self.driver.find_element(By.XPATH, search_btn_locator)
         search_btn.click()
-        time.sleep(2)
-        search_input = self.driver.find_element(
-            By.XPATH,
-            '/html/body/div[2]/div/div/div/div[1]/div/div/div/'
-            'div[1]/div[1]/div[1]/div/div/div[2]/div/div/div[2]/div[1]/div/input')
+
+        self.wait.until(EC.element_to_be_clickable((By.XPATH, search_input_locator)))
+        search_input = self.driver.find_element(By.XPATH, search_input_locator)
         search_input.send_keys(username)
-        time.sleep(2)
-        search_res = self.driver.find_element(
-            By.XPATH,
-            "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[1]"
-            "/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/a/div")
+
+        self.wait.until(EC.element_to_be_clickable((By.XPATH, search_result_locator)))
+        search_result = self.driver.find_element(By.XPATH, search_result_locator)
         logger.info(f"find_followers >>> click res")
-        search_res.click()
+        search_result.click()
 
     def follow(self):
         """
         Follow the followers of the user from find_followers method
-        :return: void
         """
-        time.sleep(3)
-        followers = self.driver.find_element(
-            By.XPATH,
-            "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]"
-            "/div[2]/section/main/div/header/section/ul/li[2]/a/div")
+        followers_btn_locator = "/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/" \
+                                "div[1]/div[2]/section/main/div/header/section/ul/li[2]/a/div"
+        ok_btn_locator = "/html/body/div[2]/div/div/div/div[2]/div/div[2]/div[1]/" \
+                         "div/div[2]/div/div/div/div/div[2]/div/div/div[2]/button[2]"
+        try_again_h3_locator = "/html/body/div[2]/div/div/div/div[2]/div/div[2]/" \
+                               "div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[1]/h3"
+
+        self.wait.until(EC.presence_of_element_located((By.XPATH, followers_btn_locator)))
+        followers = self.driver.find_element(By.XPATH, followers_btn_locator)
         logger.info(f"follow >>> click followers")
         followers.click()
-        time.sleep(5)
 
-        logger.info(f"follow >>> Start following")
         last_follow_count = 0
+        logger.info(f"follow >>> Start following")
         while True:
+            self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "button")))
             follow_btns = self.driver.find_elements(By.TAG_NAME, "button")
-            wait = WebDriverWait(self.driver, 10)
             for btn in follow_btns:
                 if btn.text == "Follow":
-                    wait.until(element_to_be_clickable(btn))
-                    logger.info(f"follow >>> click on : {btn}")
+                    self.wait.until(EC.element_to_be_clickable(btn))
                     try:
                         btn.click()
+                        logger.info(f"follow >>> click on : {btn}")
                     except ElementClickInterceptedException:
-                        logger.info(f"follow >>> this fucker unclickable : {btn}")
+                        logger.info(f"follow >>> this btn is cover : {btn} --> need to scroll")
                         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-                    time.sleep(1)
+                    time.sleep(random.randrange(1, 4))
+
+                if len(self.driver.find_elements(By.XPATH, try_again_h3_locator)):
+                    self.driver.find_element(By.XPATH, ok_btn_locator).click()
+                    time.sleep(300)
             new_follow_count = len(follow_btns)
             if new_follow_count == last_follow_count:
                 break
@@ -104,9 +115,9 @@ class InstaFollower:
         logger.info(f"follow >>> Done following")
 
 
-USERNAME = 'Your username'
+USERNAME = 'Your user name'
 PASSWORD = 'Your password'
-SIMILAR_ACCOUNT = "Similar to your page"
+SIMILAR_ACCOUNT = "Page similar to yours"
 
 inf = InstaFollower()
 inf.login(USERNAME, PASSWORD)
